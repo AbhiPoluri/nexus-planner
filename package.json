@@ -1,0 +1,14 @@
+{
+  "name": "nexus-planner",
+  "version": "0.1.0",
+  "description": "A modern, intelligent project planning and task management platform",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "keywords": ["project-management", "kanban", "task-manager"],
+  "author": "Abhiram Poluri",
+  "license": "MIT"
+}
