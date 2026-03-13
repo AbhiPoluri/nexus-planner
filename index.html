@@ -700,12 +700,12 @@ footer {
 
     // Center text
     ctx.fillStyle = '#a3f050';
-    ctx.font = `bold ${Math.round(cr * 0.72)}px JetBrains Mono, monospace`;
+    ctx.font = `800 ${Math.round(cr * 0.72)}px Syne, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('N', cx, cy - cr * 0.08);
     ctx.fillStyle = '#555';
-    ctx.font = `${Math.round(cr * 0.34)}px Inter, sans-serif`;
+    ctx.font = `600 ${Math.round(cr * 0.34)}px Manrope, sans-serif`;
     ctx.fillText('nexus', cx, cy + cr * 0.58);
 
     // Draw nodes
@@ -758,7 +758,7 @@ footer {
       const pulse = 0.85 + 0.15 * Math.sin(t * 2 + n.angle);
       ctx.globalAlpha = pulse;
       const fs = Math.max(9, Math.round(minR * 0.075));
-      ctx.font = `500 ${fs}px Inter, sans-serif`;
+      ctx.font = `600 ${fs}px Manrope, sans-serif`;
       ctx.textAlign = 'center';
       const tw = ctx.measureText(n.label).width;
       const th = fs * 1.4;
