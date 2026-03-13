@@ -4,7 +4,6 @@
   "description": "A modern, intelligent project planning and task management platform",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx"
   },
