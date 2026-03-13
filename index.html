@@ -1,14 +1,817 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nexus Planner - AI Project Planning</title>
-    <script type="module" crossorigin src="/assets/index-BH16sOcZ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D_anNMPv.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Planner — AI-powered project planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --surface: #141414;
+  --surface2: #1a1a1a;
+  --border: #222222;
+  --border2: #2c2c2c;
+  --text: #f0f0f0;
+  --text2: #888888;
+  --muted: #444444;
+  --lime: #a3f050;
+  --lime-dim: rgba(163,240,80,0.10);
+  --lime-glow: rgba(163,240,80,0.20);
+  --lime-border: rgba(163,240,80,0.25);
+  --orange: #f5831f;
+  --orange-dim: rgba(245,131,31,0.10);
+  --orange-border: rgba(245,131,31,0.22);
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(163,240,80,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(163,240,80,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Nav */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,10,10,0.88);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 600; color: var(--text);
+  text-decoration: none; display: flex; align-items: center; gap: 10px;
+}
+.nav-logo .n-badge {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--lime); color: #0a0a0a;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo .accent { color: var(--lime); }
+nav a.nav-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--lime-border);
+  background: var(--lime-dim);
+  color: var(--lime); text-decoration: none;
+  font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+nav a.nav-cta:hover { background: rgba(163,240,80,0.18); box-shadow: 0 0 18px rgba(163,240,80,0.15); }
+
+/* Hero */
+.hero {
+  min-height: 100dvh;
+  display: flex; align-items: center;
+  padding: 80px 60px 60px;
+  gap: 60px; max-width: 1200px; margin: 0 auto;
+  position: relative;
+}
+.hero-left {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+#graph-wrap {
+  width: clamp(300px, 40vw, 500px);
+  height: clamp(300px, 40vw, 500px);
+  flex-shrink: 0; position: relative;
+}
+#graph-wrap canvas { border-radius: 12px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 100px; padding: 4px 14px 4px 8px;
+  font-size: 11.5px; font-weight: 500; color: var(--text2);
+  margin-bottom: 26px; letter-spacing: 0.01em;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--lime); box-shadow: 0 0 6px var(--lime);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100% { opacity: 1; } 50% { opacity: 0.35; }
+}
+.hero-badge code {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  color: var(--lime); background: var(--lime-dim);
+  padding: 1px 6px; border-radius: 3px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(38px, 5.5vw, 66px); font-weight: 800;
+  line-height: 1.06; letter-spacing: -0.03em; margin-bottom: 20px;
+}
+.hero h1 .grad {
+  background: linear-gradient(110deg, var(--lime) 0%, #d4f58a 40%, var(--orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero p {
+  font-size: 16px; line-height: 1.7; color: var(--text2);
+  max-width: 440px; margin-bottom: 36px;
+}
+.hero-actions {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--lime); color: #0a0a0a; text-decoration: none;
+  font-size: 13.5px; font-weight: 700; padding: 12px 28px; border-radius: 7px;
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 24px rgba(163,240,80,0.25);
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 0 40px rgba(163,240,80,0.38); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--text2); text-decoration: none;
+  font-size: 13.5px; font-weight: 500; padding: 12px 24px; border-radius: 7px;
+  border: 1px solid var(--border2);
+  transition: border-color 0.15s, color 0.15s, transform 0.15s;
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--text); transform: translateY(-2px); }
+
+@media (max-width: 860px) {
+  .hero {
+    flex-direction: column; padding: 90px 24px 48px;
+    align-items: center; text-align: center;
+  }
+  .hero-left { align-items: center; }
+  .hero p { max-width: 100%; }
+  #graph-wrap { width: clamp(260px, 80vw, 380px); height: clamp(260px, 80vw, 380px); }
+}
+
+/* App mockup */
+.hero-mockup { margin-top: 64px; max-width: 860px; width: 100%; }
+.mockup-chrome {
+  background: #141414; border: 1px solid var(--border2);
+  border-radius: 10px 10px 0 0; padding: 9px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mockup-dots { display: flex; gap: 5px; }
+.mockup-dots span { width: 10px; height: 10px; border-radius: 50%; display: block; }
+.mockup-url {
+  flex: 1; background: var(--bg2); border-radius: 4px;
+  padding: 3px 10px; font-size: 11px; color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+}
+.mockup-body {
+  border: 1px solid var(--border2); border-top: none;
+  border-radius: 0 0 10px 10px; overflow: hidden;
+  background: var(--bg2);
+  display: grid; grid-template-columns: 52px 180px 1fr; gap: 0;
+  min-height: 270px;
+}
+.mockup-iconbar {
+  background: #0d0d0d;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 0; gap: 14px;
+}
+.mockup-iconbar .n-badge {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--lime); color: #0a0a0a;
+  font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.mockup-icon {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--lime-border);
+  background: var(--lime-dim); display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--lime);
+}
+.mockup-icon.dim { border-color: var(--border); background: transparent; color: var(--muted); }
+.mockup-sidebar {
+  border-right: 1px solid var(--border); padding: 16px 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.mockup-nav-item {
+  padding: 6px 10px; border-radius: 5px;
+  font-size: 11px; color: var(--text2);
+  display: flex; align-items: center; gap: 7px;
+}
+.mockup-nav-item.active { background: var(--lime-dim); color: var(--lime); }
+.mockup-nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.mockup-main { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.mockup-sprint {
+  font-size: 11px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.mockup-sprint .badge {
+  font-size: 9px; padding: 2px 7px; border-radius: 99px;
+  background: var(--orange-dim); color: var(--orange);
+  border: 1px solid var(--orange-border); font-weight: 600;
+}
+.mockup-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mockup-col-header {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+}
+.mockup-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 5px; padding: 8px 9px; font-size: 10px; margin-bottom: 5px;
+}
+.mockup-card-title { color: var(--text); font-weight: 500; margin-bottom: 4px; font-size: 10.5px; }
+.mockup-tag {
+  display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 99px;
+  background: var(--lime-dim); color: var(--lime); font-weight: 600;
+  border: 1px solid var(--lime-border);
+}
+.mockup-tag.orange { background: var(--orange-dim); color: var(--orange); border-color: var(--orange-border); }
+
+/* Sections */
+.section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--lime); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::before {
+  content: ''; width: 20px; height: 1px; background: var(--lime);
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 44px); font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1.12; margin-bottom: 14px;
+}
+.section-sub {
+  font-size: 15.5px; color: var(--text2); line-height: 1.7;
+  max-width: 500px; margin-bottom: 56px;
+}
+.divider { height: 1px; background: var(--border); max-width: 1100px; margin: 0 auto; }
+
+/* Feature grid */
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.feature-card {
+  background: var(--bg2); padding: 30px;
+  transition: background 0.18s;
+  cursor: default; position: relative; overflow: hidden;
+}
+.feature-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 0 0, rgba(163,240,80,0.04) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.18s;
+}
+.feature-card:hover { background: var(--surface); }
+.feature-card:hover::before { opacity: 1; }
+.feature-icon {
+  width: 38px; height: 38px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; font-size: 16px;
+  background: var(--lime-dim); border: 1px solid var(--lime-border);
+  color: var(--lime);
+}
+.feature-card h3 { font-size: 14.5px; font-weight: 600; margin-bottom: 8px; }
+.feature-card p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+/* Steps */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.step {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 28px; background: var(--bg2);
+  transition: background 0.18s;
+}
+.step:hover { background: var(--surface); }
+.step-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  color: var(--lime); background: var(--lime-dim);
+  border: 1px solid var(--lime-border);
+  width: 30px; height: 30px; display: flex; align-items: center;
+  justify-content: center; border-radius: 6px;
+}
+.step h3 { font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+.step p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+/* Tech stack */
+.tech-stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.tech-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  padding: 5px 13px; border-radius: 6px;
+  font-size: 12.5px; font-weight: 500; color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+  transition: border-color 0.15s, color 0.15s;
+}
+.tech-pill:hover { border-color: var(--lime-border); color: var(--lime); }
+
+/* Stats row */
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; margin-bottom: 60px;
+}
+.stat { background: var(--bg2); padding: 28px; text-align: center; }
+.stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 4vw, 40px); font-weight: 600;
+  color: var(--lime); line-height: 1; margin-bottom: 8px;
+}
+.stat-label { font-size: 12.5px; color: var(--text2); }
+
+/* CTA */
+.cta-section {
+  padding: 120px 24px; text-align: center; position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 700px; height: 350px;
+  background: radial-gradient(ellipse at center, rgba(163,240,80,0.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-section h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(30px, 5vw, 52px); font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; margin-bottom: 18px;
+  max-width: 560px; margin-left: auto; margin-right: auto;
+}
+.cta-section h2 .grad {
+  background: linear-gradient(110deg, var(--lime) 0%, var(--orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.cta-section p { font-size: 15px; color: var(--text2); margin-bottom: 38px; }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border); padding: 28px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-logo {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.footer-logo .n-badge {
+  width: 20px; height: 20px; border-radius: 4px;
+  background: var(--lime); color: #0a0a0a;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.footer-logo .accent { color: var(--lime); }
+.footer-text { font-size: 12px; color: var(--border2); }
+.footer-text a { color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.footer-text a:hover { color: var(--lime); }
+
+@media (max-width: 640px) {
+  nav { padding: 0 20px; }
+  .section { padding: 72px 20px; }
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
+  .mockup-body { grid-template-columns: 52px 1fr; }
+  .mockup-sidebar { display: none; }
+  .mockup-board { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: 1fr; }
+}
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="n-badge">N</span>
+    Nexus<span class="accent">Planner</span>
+  </a>
+  <a href="https://github.com/AbhiPoluri/nexus-planner" target="_blank" class="nav-cta">
+    GitHub ↗
+  </a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <!-- Left: text -->
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      AI-powered · <code>Monte Carlo</code> · <code>React</code> + <code>TypeScript</code>
+    </div>
+    <h1>Project planning,<br><span class="grad">intelligently done.</span></h1>
+    <p>Decompose goals into executable plans. Visualize dependencies, simulate risk, and ship on time.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/AbhiPoluri/nexus-planner" target="_blank" class="btn-primary">
+        View on GitHub
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 10L10 3M10 3H5M10 3V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#features" class="btn-secondary">
+        See features
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2.5V10.5M6.5 10.5L3.5 7.5M6.5 10.5L9.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Right: 3D graph -->
+  <div id="graph-wrap"></div>
+</section>
+
+<!-- App mockup (below hero) -->
+<section style="padding: 0 24px 80px; max-width: 1100px; margin: 0 auto;">
+  <div class="hero-mockup">
+    <div class="mockup-chrome">
+      <div class="mockup-dots">
+        <span style="background:#ff5f57"></span>
+        <span style="background:#febc2e"></span>
+        <span style="background:#28c840"></span>
+      </div>
+      <div class="mockup-url">nexus-planner.app / board / sprint-14</div>
+    </div>
+    <div class="mockup-body">
+      <!-- Icon sidebar (matches real app) -->
+      <div class="mockup-iconbar">
+        <div class="n-badge">N</div>
+        <div class="mockup-icon">⬡</div>
+        <div class="mockup-icon dim">◎</div>
+        <div class="mockup-icon dim">⊞</div>
+      </div>
+      <!-- Nav sidebar -->
+      <div class="mockup-sidebar">
+        <div class="mockup-nav-item active"><span class="mockup-nav-dot"></span>Board</div>
+        <div class="mockup-nav-item"><span class="mockup-nav-dot"></span>Timeline</div>
+        <div class="mockup-nav-item"><span class="mockup-nav-dot"></span>Dependencies</div>
+        <div class="mockup-nav-item"><span class="mockup-nav-dot"></span>Risk Sim</div>
+        <div class="mockup-nav-item"><span class="mockup-nav-dot"></span>Analytics</div>
+      </div>
+      <!-- Main content -->
+      <div class="mockup-main">
+        <div class="mockup-sprint">
+          Sprint 14 · 6 days remaining
+          <span class="badge">at risk</span>
+        </div>
+        <div class="mockup-board">
+          <div>
+            <div class="mockup-col-header">To Do</div>
+            <div class="mockup-card"><div class="mockup-card-title">API rate limiting</div><span class="mockup-tag">backend</span></div>
+            <div class="mockup-card"><div class="mockup-card-title">OAuth refresh flow</div><span class="mockup-tag orange">auth</span></div>
+          </div>
+          <div>
+            <div class="mockup-col-header">In Progress</div>
+            <div class="mockup-card"><div class="mockup-card-title">Dependency graph</div><span class="mockup-tag">frontend</span></div>
+          </div>
+          <div>
+            <div class="mockup-col-header">Done</div>
+            <div class="mockup-card"><div class="mockup-card-title">Critical path calc</div><span class="mockup-tag">core</span></div>
+            <div class="mockup-card"><div class="mockup-card-title">Burndown chart</div><span class="mockup-tag">analytics</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<div class="divider"></div>
+<section class="section reveal" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Everything a team needs.</h2>
+  <p class="section-sub">Built for engineers who want clarity over chaos — from solo side projects to cross-functional sprints.</p>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">⬡</div>
+      <h3>Dependency mapping</h3>
+      <p>Visualize task relationships with an interactive graph. Automatically detect circular dependencies before they cause delays.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">◎</div>
+      <h3>Monte Carlo simulation</h3>
+      <p>Run risk simulations across 10,000 scenarios. Get P50/P90 confidence intervals instead of wishful estimates.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⚡</div>
+      <h3>AI scheduling</h3>
+      <p>AI-assisted prioritization surfaces highest-impact tasks. Smart deadline suggestions based on team velocity and complexity.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⊞</div>
+      <h3>Multiple views</h3>
+      <p>Kanban, list, and timeline layouts. Adapts to Agile, Shape Up, Waterfall, and Kanban out of the box.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">◈</div>
+      <h3>Real-time collaboration</h3>
+      <p>Live updates, inline comments, and @mentions. Role-based access with granular permissions per project.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">⊡</div>
+      <h3>Progress analytics</h3>
+      <p>Burndown charts, velocity tracking, and custom reports. Exportable metrics for stakeholder updates.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="divider"></div>
+<section class="section reveal">
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">10k+</div><div class="stat-label">Monte Carlo scenarios per sim</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Supported workflow methodologies</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">Cloud dependencies — fully local</div></div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section-label" style="margin-bottom:16px">How it works</div>
+  <h2 class="section-title">Plan smarter, ship faster.</h2>
+  <p class="section-sub">From goal to execution in minutes — not a week of Jira config.</p>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <h3>Define your goal</h3>
+      <p>Enter a high-level objective. Nexus breaks it into tasks, estimates scope, and flags ambiguous requirements.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <h3>Map dependencies</h3>
+      <p>Drag to connect tasks. The engine automatically finds the critical path and warns about circular dependencies.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <h3>Simulate risk</h3>
+      <p>Monte Carlo runs 10,000 scenarios against your timeline. See delivery probability before committing.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <h3>Execute & track</h3>
+      <p>Assign tasks, track velocity, and get burndown charts in real time. Retrospective data feeds future simulations.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tech stack -->
+<div class="divider"></div>
+<section class="section reveal">
+  <div class="section-label">Tech Stack</div>
+  <h2 class="section-title">Built to last.</h2>
+  <p class="section-sub">A modern frontend stack with offline-first storage and a full REST &amp; GraphQL API.</p>
+  <div class="tech-stack">
+    <span class="tech-pill">React</span>
+    <span class="tech-pill">TypeScript</span>
+    <span class="tech-pill">Zustand</span>
+    <span class="tech-pill">IndexedDB</span>
+    <span class="tech-pill">D3.js</span>
+    <span class="tech-pill">Vite</span>
+    <span class="tech-pill">Vitest</span>
+    <span class="tech-pill">REST API</span>
+    <span class="tech-pill">GraphQL</span>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="divider"></div>
+<div class="cta-section reveal">
+  <h2>Ready to plan without <span class="grad">the chaos?</span></h2>
+  <p>Open-source and self-hostable. Star it, fork it, build on it.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://github.com/AbhiPoluri/nexus-planner" target="_blank" class="btn-primary">
+      View on GitHub ↗
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">
+    <span class="n-badge">N</span>
+    Nexus<span class="accent">Planner</span>
+  </div>
+  <div class="footer-text">Built by <a href="https://abhipoluri.github.io">Abhiram Poluri</a></div>
+</footer>
+
+<!-- Orbital animation canvas -->
+<script>
+(function() {
+  const wrap = document.getElementById('graph-wrap');
+  if (!wrap) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'width:100%;height:100%;border-radius:12px;';
+  wrap.appendChild(canvas);
+
+  const dpr = Math.min(window.devicePixelRatio, 2);
+  function resize() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const ctx = canvas.getContext('2d');
+
+  // Node labels / tags for the orbiting items
+  const nodes = [
+    // Ring 1 (r=0.22) — 3 nodes
+    { ring: 0, angle: 0,          speed: 0.38, label: 'Dependency graph',  color: '#a3f050', type: 'lime' },
+    { ring: 0, angle: 2.1,        speed: 0.38, label: 'API rate limiting', color: '#888888', type: 'dim'  },
+    { ring: 0, angle: 4.2,        speed: 0.38, label: 'Critical path',     color: '#f5831f', type: 'orange' },
+    // Ring 2 (r=0.38) — 4 nodes
+    { ring: 1, angle: 0.8,        speed: 0.22, label: 'OAuth flow',        color: '#a3f050', type: 'lime' },
+    { ring: 1, angle: 2.4,        speed: 0.22, label: 'Risk sim',          color: '#888888', type: 'dim'  },
+    { ring: 1, angle: 4.0,        speed: 0.22, label: 'Burndown',          color: '#a3f050', type: 'lime' },
+    { ring: 1, angle: 5.4,        speed: 0.22, label: 'Sprint plan',       color: '#f5831f', type: 'orange' },
+    // Ring 3 (r=0.54) — 3 nodes
+    { ring: 2, angle: 1.2,        speed: 0.13, label: 'Velocity',          color: '#888888', type: 'dim'  },
+    { ring: 2, angle: 3.4,        speed: 0.13, label: 'Monte Carlo',       color: '#a3f050', type: 'lime' },
+    { ring: 2, angle: 5.1,        speed: 0.13, label: 'Team sync',         color: '#888888', type: 'dim'  },
+  ];
+
+  const RADII_FRAC = [0.22, 0.37, 0.52]; // fraction of min(W,H)/2
+
+  let mx = 0.5, my = 0.5;
+  wrap.addEventListener('mousemove', e => {
+    const r = wrap.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width;
+    my = (e.clientY - r.top) / r.height;
+  });
+  wrap.addEventListener('mouseleave', () => { mx = 0.5; my = 0.5; });
+
+  let t = 0;
+
+  function draw() {
+    requestAnimationFrame(draw);
+    t += 0.012;
+
+    const W = canvas.width, H = canvas.height;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const vw = W / dpr, vh = H / dpr;
+    ctx.clearRect(0, 0, vw, vh);
+
+    // Center with subtle mouse parallax
+    const cx = vw / 2 + (mx - 0.5) * 12;
+    const cy = vh / 2 + (my - 0.5) * 12;
+    const minR = Math.min(vw, vh) / 2;
+
+    // Draw orbital rings
+    RADII_FRAC.forEach((rf, i) => {
+      const r = rf * minR * 1.88;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(163,240,80,${0.07 + i * 0.02})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Draw center glow
+    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, minR * 0.32);
+    grd.addColorStop(0, 'rgba(163,240,80,0.14)');
+    grd.addColorStop(1, 'rgba(163,240,80,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, minR * 0.32, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    // Center badge
+    const cr = minR * 0.145;
+    ctx.beginPath();
+    ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+    ctx.fillStyle = '#111111';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(163,240,80,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Center text
+    ctx.fillStyle = '#a3f050';
+    ctx.font = `bold ${Math.round(cr * 0.72)}px JetBrains Mono, monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('N', cx, cy - cr * 0.08);
+    ctx.fillStyle = '#555';
+    ctx.font = `${Math.round(cr * 0.34)}px Inter, sans-serif`;
+    ctx.fillText('nexus', cx, cy + cr * 0.58);
+
+    // Draw nodes
+    nodes.forEach(n => {
+      const rf = RADII_FRAC[n.ring];
+      const r = rf * minR * 1.88;
+      const a = n.angle + t * n.speed;
+      const nx = cx + Math.cos(a) * r;
+      const ny = cy + Math.sin(a) * r;
+      const nr = minR * (n.type === 'dim' ? 0.048 : 0.060);
+
+      // Line from center to node (faint)
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(nx, ny);
+      ctx.strokeStyle = n.type === 'lime'
+        ? 'rgba(163,240,80,0.08)'
+        : n.type === 'orange'
+          ? 'rgba(245,131,31,0.08)'
+          : 'rgba(255,255,255,0.03)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Node glow
+      if (n.type !== 'dim') {
+        const glow = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr * 2.8);
+        const gc = n.type === 'lime' ? '163,240,80' : '245,131,31';
+        glow.addColorStop(0, `rgba(${gc},0.28)`);
+        glow.addColorStop(1, `rgba(${gc},0)`);
+        ctx.beginPath();
+        ctx.arc(nx, ny, nr * 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+      }
+
+      // Node circle
+      ctx.beginPath();
+      ctx.arc(nx, ny, nr, 0, Math.PI * 2);
+      ctx.fillStyle = n.type === 'lime' ? '#a3f050'
+        : n.type === 'orange' ? '#f5831f'
+        : '#2a2a2a';
+      ctx.fill();
+      ctx.strokeStyle = n.type === 'lime' ? 'rgba(163,240,80,0.6)'
+        : n.type === 'orange' ? 'rgba(245,131,31,0.6)'
+        : 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Label tag
+      const pulse = 0.85 + 0.15 * Math.sin(t * 2 + n.angle);
+      ctx.globalAlpha = pulse;
+      const fs = Math.max(9, Math.round(minR * 0.075));
+      ctx.font = `500 ${fs}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      const tw = ctx.measureText(n.label).width;
+      const th = fs * 1.4;
+      const lx = nx, ly = ny + nr + th * 0.5 + 5;
+      const pad = 7;
+      const lbg = n.type === 'lime' ? 'rgba(163,240,80,0.10)'
+        : n.type === 'orange' ? 'rgba(245,131,31,0.10)'
+        : 'rgba(255,255,255,0.04)';
+      const lborder = n.type === 'lime' ? 'rgba(163,240,80,0.25)'
+        : n.type === 'orange' ? 'rgba(245,131,31,0.25)'
+        : 'rgba(255,255,255,0.06)';
+
+      ctx.beginPath();
+      const lrx = lx - tw / 2 - pad, lry = ly - th * 0.55;
+      const lrw = tw + pad * 2, lrh = th;
+      const lr = 5;
+      ctx.moveTo(lrx + lr, lry);
+      ctx.lineTo(lrx + lrw - lr, lry);
+      ctx.quadraticCurveTo(lrx + lrw, lry, lrx + lrw, lry + lr);
+      ctx.lineTo(lrx + lrw, lry + lrh - lr);
+      ctx.quadraticCurveTo(lrx + lrw, lry + lrh, lrx + lrw - lr, lry + lrh);
+      ctx.lineTo(lrx + lr, lry + lrh);
+      ctx.quadraticCurveTo(lrx, lry + lrh, lrx, lry + lrh - lr);
+      ctx.lineTo(lrx, lry + lr);
+      ctx.quadraticCurveTo(lrx, lry, lrx + lr, lry);
+      ctx.closePath();
+      ctx.fillStyle = lbg;
+      ctx.fill();
+      ctx.strokeStyle = lborder;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = n.type === 'lime' ? '#a3f050'
+        : n.type === 'orange' ? '#f5831f'
+        : '#555555';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(n.label, lx, ly);
+      ctx.globalAlpha = 1;
+    });
+  }
+  draw();
+
+})();
+</script>
+
+<!-- Scroll reveal -->
+<script>
+(function() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+</script>
+</body>
 </html>
