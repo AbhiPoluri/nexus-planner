@@ -94,11 +94,11 @@ nav a.nav-cta:hover { background: rgba(163,240,80,0.18); box-shadow: 0 0 18px rg
   display: flex; flex-direction: column; align-items: flex-start;
 }
 #graph-wrap {
-  width: clamp(300px, 40vw, 500px);
-  height: clamp(300px, 40vw, 500px);
+  width: clamp(300px, 40vw, 460px);
   flex-shrink: 0; position: relative;
+  align-self: stretch;
 }
-#graph-wrap canvas { border-radius: 12px; }
+#graph-wrap .hero-vis { height: 100%; min-height: 340px; }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 7px;
   background: var(--bg2); border: 1px solid var(--border2);
@@ -388,6 +388,139 @@ footer {
   .stats-row { grid-template-columns: 1fr; }
 }
 
+/* Hero vis panel */
+.hero-vis {
+  background: #111111;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 22px 20px 18px;
+  display: flex; flex-direction: column; gap: 13px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(163,240,80,0.06), 0 24px 60px rgba(0,0,0,0.5);
+}
+.hero-vis::after {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 200px; height: 200px;
+  background: radial-gradient(ellipse, rgba(163,240,80,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.vis-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vis-sprint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.vis-sprint-meta {
+  font-size: 10px; color: var(--text2); font-weight: 400;
+  font-family: 'Manrope', sans-serif;
+}
+.vis-at-risk {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(245,131,31,0.10); border: 1px solid rgba(245,131,31,0.22);
+  border-radius: 6px; padding: 3px 9px;
+  font-size: 10px; font-weight: 600; color: var(--orange);
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+}
+.vis-sec {
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: -4px;
+}
+.vis-tasks { display: flex; flex-direction: column; gap: 7px; }
+.vis-task {
+  display: flex; align-items: center; gap: 9px;
+}
+.vis-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.vis-dot.done { background: var(--lime); }
+.vis-dot.active { background: var(--lime); box-shadow: 0 0 6px var(--lime); animation: blink 2.2s ease-in-out infinite; }
+.vis-dot.warn { background: var(--orange); box-shadow: 0 0 6px var(--orange); animation: blink 1.8s ease-in-out infinite; }
+.vis-dot.idle { background: var(--muted); }
+.vis-tname {
+  font-size: 11px; font-weight: 500; color: var(--text);
+  white-space: nowrap; width: 100px; flex-shrink: 0;
+}
+.vis-bar-track {
+  flex: 1; height: 4px; background: rgba(255,255,255,0.05);
+  border-radius: 2px; overflow: hidden;
+}
+.vis-bar {
+  height: 100%; border-radius: 2px;
+  transform-origin: left;
+}
+.vis-bar.lime { background: var(--lime); }
+.vis-bar.orange { background: var(--orange); }
+.vis-bar.dim { background: var(--muted); }
+.vis-bar.shimmer {
+  background: linear-gradient(90deg, var(--lime) 0%, #d4f58a 50%, var(--lime) 100%);
+  background-size: 200%;
+  animation: shimmerSlide 2.5s 1s linear infinite;
+}
+@keyframes shimmerSlide { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.vis-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--text2); font-weight: 500; width: 30px; text-align: right;
+}
+.vis-divider { height: 1px; background: var(--border); }
+/* Monte Carlo */
+.vis-mc { display: flex; flex-direction: column; gap: 7px; }
+.vis-mc-track {
+  position: relative; height: 28px;
+  background: rgba(255,255,255,0.03); border-radius: 6px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.vis-mc-dist {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    transparent 10%,
+    rgba(163,240,80,0.04) 25%,
+    rgba(163,240,80,0.14) 42%,
+    rgba(163,240,80,0.22) 52%,
+    rgba(163,240,80,0.1) 66%,
+    rgba(245,131,31,0.08) 78%,
+    transparent 92%
+  );
+}
+.vis-mc-p50, .vis-mc-p90, .vis-mc-target {
+  position: absolute; top: 0; bottom: 0; width: 1.5px;
+}
+.vis-mc-p50 { left: 51%; background: var(--lime); opacity: 0.8; }
+.vis-mc-p90 { left: 71%; background: var(--orange); opacity: 0.7; }
+.vis-mc-target { left: 60%; background: rgba(255,255,255,0.2); border-right: 1px dashed rgba(255,255,255,0.2); width: 0; }
+.vis-mc-plabel {
+  position: absolute; top: 3px;
+  font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+  padding: 1px 4px; border-radius: 3px;
+}
+.vis-mc-p50-label { left: 53%; color: var(--lime); background: rgba(163,240,80,0.12); }
+.vis-mc-p90-label { left: 73%; color: var(--orange); background: rgba(245,131,31,0.10); }
+.vis-mc-dates {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted);
+}
+/* Critical path */
+.vis-crit {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--lime-dim); border: 1px solid var(--lime-border);
+  border-radius: 7px; padding: 8px 12px;
+}
+.vis-crit-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--lime); flex-shrink: 0;
+}
+.vis-crit-path {
+  font-size: 11px; color: var(--text2); flex: 1;
+}
+.vis-crit-days {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; color: var(--lime); flex-shrink: 0;
+}
+
 /* Scroll reveal */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s ease, transform 0.55s ease; }
 .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -428,8 +561,80 @@ footer {
     </div>
   </div>
 
-  <!-- Right: 3D graph -->
-  <div id="graph-wrap"></div>
+  <!-- Right: dashboard vis -->
+  <div id="graph-wrap">
+    <div class="hero-vis">
+      <!-- Header -->
+      <div class="vis-hdr">
+        <div class="vis-sprint">
+          Sprint 14
+          <span class="vis-sprint-meta">6 days remaining</span>
+        </div>
+        <span class="vis-at-risk">⚠ at risk</span>
+      </div>
+
+      <!-- Tasks -->
+      <div class="vis-sec">Tasks</div>
+      <div class="vis-tasks">
+        <div class="vis-task">
+          <span class="vis-dot done"></span>
+          <span class="vis-tname">Auth service</span>
+          <div class="vis-bar-track"><div class="vis-bar lime" style="transform:scaleX(1)"></div></div>
+          <span class="vis-pct">100%</span>
+        </div>
+        <div class="vis-task">
+          <span class="vis-dot done"></span>
+          <span class="vis-tname">API design</span>
+          <div class="vis-bar-track"><div class="vis-bar lime" style="transform:scaleX(0.88)"></div></div>
+          <span class="vis-pct">88%</span>
+        </div>
+        <div class="vis-task">
+          <span class="vis-dot active"></span>
+          <span class="vis-tname">Frontend</span>
+          <div class="vis-bar-track"><div class="vis-bar shimmer" style="transform:scaleX(0.62)"></div></div>
+          <span class="vis-pct">62%</span>
+        </div>
+        <div class="vis-task">
+          <span class="vis-dot warn"></span>
+          <span class="vis-tname">Risk sim</span>
+          <div class="vis-bar-track"><div class="vis-bar orange" style="transform:scaleX(0.40)"></div></div>
+          <span class="vis-pct">40%</span>
+        </div>
+        <div class="vis-task">
+          <span class="vis-dot idle"></span>
+          <span class="vis-tname">Deploy</span>
+          <div class="vis-bar-track"><div class="vis-bar dim" style="transform:scaleX(0.03)"></div></div>
+          <span class="vis-pct">—</span>
+        </div>
+      </div>
+
+      <div class="vis-divider"></div>
+
+      <!-- Monte Carlo -->
+      <div class="vis-sec">Monte Carlo · 10k runs</div>
+      <div class="vis-mc">
+        <div class="vis-mc-track">
+          <div class="vis-mc-dist"></div>
+          <div class="vis-mc-p50"></div>
+          <div class="vis-mc-p90"></div>
+          <span class="vis-mc-plabel vis-mc-p50-label">P50</span>
+          <span class="vis-mc-plabel vis-mc-p90-label">P90</span>
+        </div>
+        <div class="vis-mc-dates">
+          <span>Mar 18</span>
+          <span>Mar 24</span>
+          <span>Apr 2</span>
+        </div>
+      </div>
+
+      <!-- Critical path -->
+      <div class="vis-crit">
+        <span class="vis-crit-label">Critical path</span>
+        <span class="vis-crit-path">Auth → API → Deploy</span>
+        <span class="vis-crit-days">11 days</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- App mockup (below hero) -->
@@ -602,207 +807,6 @@ footer {
   </div>
   <div class="footer-text">Built by <a href="https://abhipoluri.github.io">Abhiram Poluri</a></div>
 </footer>
-
-<!-- Orbital animation canvas -->
-<script>
-(function() {
-  const wrap = document.getElementById('graph-wrap');
-  if (!wrap) return;
-
-  const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'width:100%;height:100%;border-radius:12px;';
-  wrap.appendChild(canvas);
-
-  const dpr = Math.min(window.devicePixelRatio, 2);
-  function resize() {
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const ctx = canvas.getContext('2d');
-
-  // Node labels / tags for the orbiting items
-  const nodes = [
-    // Ring 1 (r=0.22) — 3 nodes
-    { ring: 0, angle: 0,          speed: 0.38, label: 'Dependency graph',  color: '#a3f050', type: 'lime' },
-    { ring: 0, angle: 2.1,        speed: 0.38, label: 'API rate limiting', color: '#888888', type: 'dim'  },
-    { ring: 0, angle: 4.2,        speed: 0.38, label: 'Critical path',     color: '#f5831f', type: 'orange' },
-    // Ring 2 (r=0.38) — 4 nodes
-    { ring: 1, angle: 0.8,        speed: 0.22, label: 'OAuth flow',        color: '#a3f050', type: 'lime' },
-    { ring: 1, angle: 2.4,        speed: 0.22, label: 'Risk sim',          color: '#888888', type: 'dim'  },
-    { ring: 1, angle: 4.0,        speed: 0.22, label: 'Burndown',          color: '#a3f050', type: 'lime' },
-    { ring: 1, angle: 5.4,        speed: 0.22, label: 'Sprint plan',       color: '#f5831f', type: 'orange' },
-    // Ring 3 (r=0.54) — 3 nodes
-    { ring: 2, angle: 1.2,        speed: 0.13, label: 'Velocity',          color: '#888888', type: 'dim'  },
-    { ring: 2, angle: 3.4,        speed: 0.13, label: 'Monte Carlo',       color: '#a3f050', type: 'lime' },
-    { ring: 2, angle: 5.1,        speed: 0.13, label: 'Team sync',         color: '#888888', type: 'dim'  },
-  ];
-
-  const RADII_FRAC = [0.22, 0.37, 0.52]; // fraction of min(W,H)/2
-
-  let mx = 0.5, my = 0.5;
-  wrap.addEventListener('mousemove', e => {
-    const r = wrap.getBoundingClientRect();
-    mx = (e.clientX - r.left) / r.width;
-    my = (e.clientY - r.top) / r.height;
-  });
-  wrap.addEventListener('mouseleave', () => { mx = 0.5; my = 0.5; });
-
-  let t = 0;
-
-  function draw() {
-    requestAnimationFrame(draw);
-    t += 0.012;
-
-    const W = canvas.width, H = canvas.height;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const vw = W / dpr, vh = H / dpr;
-    ctx.clearRect(0, 0, vw, vh);
-
-    // Center with subtle mouse parallax
-    const cx = vw / 2 + (mx - 0.5) * 12;
-    const cy = vh / 2 + (my - 0.5) * 12;
-    const minR = Math.min(vw, vh) / 2;
-
-    // Draw orbital rings
-    RADII_FRAC.forEach((rf, i) => {
-      const r = rf * minR * 1.88;
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(163,240,80,${0.07 + i * 0.02})`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    });
-
-    // Draw center glow
-    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, minR * 0.32);
-    grd.addColorStop(0, 'rgba(163,240,80,0.14)');
-    grd.addColorStop(1, 'rgba(163,240,80,0)');
-    ctx.beginPath();
-    ctx.arc(cx, cy, minR * 0.32, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
-
-    // Center badge
-    const cr = minR * 0.145;
-    ctx.beginPath();
-    ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-    ctx.fillStyle = '#111111';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(163,240,80,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Center text
-    ctx.fillStyle = '#a3f050';
-    ctx.font = `800 ${Math.round(cr * 0.72)}px Syne, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('N', cx, cy - cr * 0.08);
-    ctx.fillStyle = '#555';
-    ctx.font = `600 ${Math.round(cr * 0.34)}px Manrope, sans-serif`;
-    ctx.fillText('nexus', cx, cy + cr * 0.58);
-
-    // Draw nodes
-    nodes.forEach(n => {
-      const rf = RADII_FRAC[n.ring];
-      const r = rf * minR * 1.88;
-      const a = n.angle + t * n.speed;
-      const nx = cx + Math.cos(a) * r;
-      const ny = cy + Math.sin(a) * r;
-      const nr = minR * (n.type === 'dim' ? 0.048 : 0.060);
-
-      // Line from center to node (faint)
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(nx, ny);
-      ctx.strokeStyle = n.type === 'lime'
-        ? 'rgba(163,240,80,0.08)'
-        : n.type === 'orange'
-          ? 'rgba(245,131,31,0.08)'
-          : 'rgba(255,255,255,0.03)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Node glow
-      if (n.type !== 'dim') {
-        const glow = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr * 2.8);
-        const gc = n.type === 'lime' ? '163,240,80' : '245,131,31';
-        glow.addColorStop(0, `rgba(${gc},0.28)`);
-        glow.addColorStop(1, `rgba(${gc},0)`);
-        ctx.beginPath();
-        ctx.arc(nx, ny, nr * 2.8, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-      }
-
-      // Node circle
-      ctx.beginPath();
-      ctx.arc(nx, ny, nr, 0, Math.PI * 2);
-      ctx.fillStyle = n.type === 'lime' ? '#a3f050'
-        : n.type === 'orange' ? '#f5831f'
-        : '#2a2a2a';
-      ctx.fill();
-      ctx.strokeStyle = n.type === 'lime' ? 'rgba(163,240,80,0.6)'
-        : n.type === 'orange' ? 'rgba(245,131,31,0.6)'
-        : 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Label tag
-      const pulse = 0.85 + 0.15 * Math.sin(t * 2 + n.angle);
-      ctx.globalAlpha = pulse;
-      const fs = Math.max(9, Math.round(minR * 0.075));
-      ctx.font = `600 ${fs}px Manrope, sans-serif`;
-      ctx.textAlign = 'center';
-      const tw = ctx.measureText(n.label).width;
-      const th = fs * 1.4;
-      const lx = nx, ly = ny + nr + th * 0.5 + 5;
-      const pad = 7;
-      const lbg = n.type === 'lime' ? 'rgba(163,240,80,0.10)'
-        : n.type === 'orange' ? 'rgba(245,131,31,0.10)'
-        : 'rgba(255,255,255,0.04)';
-      const lborder = n.type === 'lime' ? 'rgba(163,240,80,0.25)'
-        : n.type === 'orange' ? 'rgba(245,131,31,0.25)'
-        : 'rgba(255,255,255,0.06)';
-
-      ctx.beginPath();
-      const lrx = lx - tw / 2 - pad, lry = ly - th * 0.55;
-      const lrw = tw + pad * 2, lrh = th;
-      const lr = 5;
-      ctx.moveTo(lrx + lr, lry);
-      ctx.lineTo(lrx + lrw - lr, lry);
-      ctx.quadraticCurveTo(lrx + lrw, lry, lrx + lrw, lry + lr);
-      ctx.lineTo(lrx + lrw, lry + lrh - lr);
-      ctx.quadraticCurveTo(lrx + lrw, lry + lrh, lrx + lrw - lr, lry + lrh);
-      ctx.lineTo(lrx + lr, lry + lrh);
-      ctx.quadraticCurveTo(lrx, lry + lrh, lrx, lry + lrh - lr);
-      ctx.lineTo(lrx, lry + lr);
-      ctx.quadraticCurveTo(lrx, lry, lrx + lr, lry);
-      ctx.closePath();
-      ctx.fillStyle = lbg;
-      ctx.fill();
-      ctx.strokeStyle = lborder;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.fillStyle = n.type === 'lime' ? '#a3f050'
-        : n.type === 'orange' ? '#f5831f'
-        : '#555555';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(n.label, lx, ly);
-      ctx.globalAlpha = 1;
-    });
-  }
-  draw();
-
-})();
-</script>
 
 <!-- Scroll reveal -->
 <script>
